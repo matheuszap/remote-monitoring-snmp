@@ -1,24 +1,49 @@
 #!/bin/bash
 
 varreduraPortas () {
-	IP=$1
-	C=$2
-	shift; shift;
+	FUNC=$1
+	IP=$2
+	C=$3
+	shift; shift; shift;
 	
-	#echo "IP= " $IP
-	#echo "Tipo= " $C
-	
-	if [ $C = "-TCP" ]
+	if [ $FUNC = "varreduraPortas" ]
 	then 
-		echo "------- Conexões TCP Ativas -------"
-		snmpwalk -v 2c -cpublic $IP 1.3.6.1.2.1.6.13.1.1
-		echo "-----------------------------------"
-		
+		if [ $C = "-TCP" ]
+		then 
+			echo "------- Conexões TCP Ativas -------"
+			snmpwalk -v 2c -cpublic $IP 1.3.6.1.2.1.6.13.1.1
+			echo "-----------------------------------"
+			
+		fi
+		if [ $C = "-UDP" ]
+		then 
+			echo "------- Conexões UDP Ativas -------"
+			snmpwalk -v 2c -cpublic $IP 1.3.6.1.2.1.7.5.1.1
+			echo "-----------------------------------"
+		fi	
+		if [ $IP ] && [ -z "$C" ]
+		then
+			echo "------- Conexões TCP Ativas -------"
+			snmpwalk -v 2c -cpublic $IP 1.3.6.1.2.1.6.13.1.1
+			echo "-----------------------------------"
+
+			echo "------- Conexões UDP Ativas -------"
+			snmpwalk -v 2c -cpublic $IP 1.3.6.1.2.1.7.5.1.1
+			echo "-----------------------------------"
+		fi
+		if [ -z "$IP" ] && [ -z "$C" ]
+		then
+			echo "------- Conexões TCP Ativas -------"
+			snmpwalk -v 2c -cpublic localhost 1.3.6.1.2.1.6.13.1.1
+			echo "-----------------------------------"
+
+			echo "------- Conexões UDP Ativas -------"
+			snmpwalk -v 2c -cpublic localhost 1.3.6.1.2.1.7.5.1.1
+			echo "-----------------------------------"
+		fi
 	else
-		echo "------- Conexões UDP Ativas -------"
-		snmpwalk -v 2c -cpublic $IP 1.3.6.1.2.1.7.5.1.1
-		echo "-----------------------------------"
-	fi		
+		echo "Função não existe."
+	fi
 }
 
 ### 
@@ -28,14 +53,19 @@ varreduraPortas () {
 x=1
 while [ $x = 1 ]
 do
-read ip c
+read func ip c
 
-varreduraPortas $ip $c
+varreduraPortas $func $ip $c
 
 done
+
+###
+# Testes
+###
 
 # varreduraPortas 127.0.0.1 -TCP
 # varreduraPortas 127.0.0.1 -UDP
 # varreduraPortas 127.0.0.1
+# varreduraPortas
 
 
